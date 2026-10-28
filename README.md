@@ -20,7 +20,7 @@ This application serves two primary roles:
 - **Framework-Free (Vanilla JS):** The problem did not require a heavy framework like React or Vue. Pure Vanilla JavaScript eliminates virtual DOM overhead, minimizes bundle size, and guarantees near-instant initial render.
 - **Pure Financial Engine (`src/loan.js`):** All financial formulas, boundary checks, and input parsing functions are strictly pure with zero DOM dependencies. This enables 100% deterministic headless testing.
 - **Build Tooling:** Vite 6 for rapid local development and optimized production bundling.
-- **Testing:** Vitest 3 running 42 automated unit tests across all acceptance criteria.
+- **Testing:** Vitest 3 running 45 automated unit tests across all acceptance criteria.
 
 ---
 
@@ -120,14 +120,14 @@ Loan Calculator/
 
 ## Requirements Traceability Summary
 
-All 42 automated unit tests pass. Full matrix is documented in `docs/traceability.md`.
+All 45 automated unit tests pass. Full matrix is documented in `docs/traceability.md`.
 
 | Story | Role | Job | Description | Status | Test Coverage |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **S-1** | Primary Borrower | J-1 | Monthly payment calculation & boundaries | Implemented | 10 tests (`test/loan.test.js`) |
 | **S-2** | Primary Borrower | J-2 | Total interest & total loan cost | Implemented | 5 tests (`test/loan.test.js`) |
-| **S-3** | Primary Borrower | J-1 | Term unit toggle (months / years) | Implemented | 7 tests (`test/s3-s4.test.js`) |
-| **S-4** | Loan Comparer | J-3 | Side-by-side comparison & delta calculation | Implemented | 4 tests (`test/s3-s4.test.js`) |
+| **S-3** | Primary Borrower | J-1 | Term unit toggle (months / years) across all types | Implemented | 8 tests (`test/s3-s4.test.js`) |
+| **S-4** | Loan Comparer | J-3 | Side-by-side comparison for Personal, Car, Home | Implemented | 6 tests (`test/s3-s4.test.js`) |
 | **S-5** | Both | J-1, J-3 | Reset inputs & comparison | Implemented | 2 tests (`test/s3-s4.test.js`) + DOM |
 | **S-6** | Primary Borrower | J-2 | Extra monthly principal payments | Not implemented | Planned for v1.1 |
 | **S-7** | Primary Borrower | J-2 | Export amortization schedule to CSV | Not implemented | Planned for v1.1 |

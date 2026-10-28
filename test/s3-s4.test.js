@@ -1,6 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import {
   validateLoanInputs,
+  validateCarLoanInputs,
+  validateHomeLoanInputs,
   calculateLoan,
   convertTermUnit,
   compareLoans
@@ -89,6 +91,23 @@ describe('Story S-3: Toggle term between years and months (serves J-1)', () => {
     expect(convertTermUnit(36, 'months', 'months')).toBe(36);
     expect(convertTermUnit(3, 'years', 'years')).toBe(3);
   });
+
+  it('AC 3.7: Home loan supports term in months directly via toggle', () => {
+    // 30 years = 360 months
+    const vMonths = validateHomeLoanInputs({
+      propertyPrice: '300000',
+      financingAmount: '240000',
+      annualRate: '5.0',
+      termMonths: '360'
+    });
+    expect(vMonths.isValid).toBe(true);
+    expect(vMonths.values.termMonths).toBe(360);
+
+    const r = calculateLoan(vMonths.values.financingAmount, vMonths.values.annualRate, vMonths.values.termMonths);
+    expect(r.monthlyPayment).toBe(1288.37);
+    expect(r.totalCost).toBe(463813.20);
+    expect(r.totalInterest).toBe(223813.20);
+  });
 });
 
 // ============================================================
@@ -165,6 +184,76 @@ describe('Story S-4: Compare two loan offers (serves J-3)', () => {
     expect(resultA).toBeNull();
     expect(resultB).toBeNull();
     expect(delta).toBeNull();
+  });
+
+  it('AC 4.4: Car loan offer comparison with down payments', () => {
+    // Offer A: $30,000 car, 20% down ($24,000 financed), 6.0%, 60 months
+    const valA = validateCarLoanInputs({
+      vehiclePrice: '30000',
+      downPaymentPct: '20',
+      annualRate: '6.0',
+      termMonths: '60'
+    });
+    // Offer B: $30,000 car, 10% down ($27,000 financed), 4.5%, 60 months
+    const valB = validateCarLoanInputs({
+      vehiclePrice: '30000',
+      downPaymentPct: '10',
+      annualRate: '4.5',
+      termMonths: '60'
+    });
+
+    expect(valA.isValid).toBe(true);
+    expect(valB.isValid).toBe(true);
+
+    const { resultA, resultB, delta } = compareLoans(
+      { principal: valA.values.financedAmount, annualRate: valA.values.annualRate, termMonths: valA.values.termMonths },
+      { principal: valB.values.financedAmount, annualRate: valB.values.annualRate, termMonths: valB.values.termMonths }
+    );
+
+    expect(resultA.monthlyPayment).toBe(463.99);
+    expect(resultA.totalInterest).toBe(3839.40);
+    expect(resultB.monthlyPayment).toBe(503.36);
+    expect(resultB.totalInterest).toBe(3201.60);
+
+    expect(delta.lowerMonthlyOffer).toBe('A');
+    expect(delta.monthlyPaymentDiff).toBe(39.37);
+    expect(delta.lowerTotalInterestOffer).toBe('B');
+    expect(delta.totalInterestDiff).toBe(637.80);
+  });
+
+  it('AC 4.5: Home loan offer comparison across different terms', () => {
+    // Offer A: $300k property, $240k financing, 5.0%, 30 years (360 months)
+    const valA = validateHomeLoanInputs({
+      propertyPrice: '300000',
+      financingAmount: '240000',
+      annualRate: '5.0',
+      termMonths: '360'
+    });
+    // Offer B: $300k property, $240k financing, 4.5%, 15 years (180 months)
+    const valB = validateHomeLoanInputs({
+      propertyPrice: '300000',
+      financingAmount: '240000',
+      annualRate: '4.5',
+      termMonths: '180'
+    });
+
+    expect(valA.isValid).toBe(true);
+    expect(valB.isValid).toBe(true);
+
+    const { resultA, resultB, delta } = compareLoans(
+      { principal: valA.values.financingAmount, annualRate: valA.values.annualRate, termMonths: valA.values.termMonths },
+      { principal: valB.values.financingAmount, annualRate: valB.values.annualRate, termMonths: valB.values.termMonths }
+    );
+
+    expect(resultA.monthlyPayment).toBe(1288.37);
+    expect(resultA.totalInterest).toBe(223813.20);
+    expect(resultB.monthlyPayment).toBe(1835.98);
+    expect(resultB.totalInterest).toBe(90476.40);
+
+    expect(delta.lowerMonthlyOffer).toBe('A');
+    expect(delta.monthlyPaymentDiff).toBe(547.61);
+    expect(delta.lowerTotalInterestOffer).toBe('B');
+    expect(delta.totalInterestDiff).toBe(133336.80);
   });
 });
 

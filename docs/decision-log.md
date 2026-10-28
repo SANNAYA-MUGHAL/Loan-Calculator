@@ -17,3 +17,10 @@
 - **Context:** Borrowers approach financing differently based on purpose: car purchases involve vehicle price with a down payment percentage, home purchases involve property price with desired financing and multi-year terms, and personal loans use direct principal.
 - **Decision:** Introduce Story S-9 with a category selector on the main screen. The same underlying financial amortization engine (`src/loan.js`) powers all three categories, preserving strict 0% rate handling, 100% maximum rate limit, 480-month term cap, and the round-to-cents calculation rule.
 - **Justification:** Eliminates code duplication, prevents assumption of external bank rates, maintains USD display formatting, and ensures category switching clears errors and isolated state.
+
+
+### Decision 004: Category-Specific Comparison and Unified Mode Navigation
+- **Status:** Approved
+- **Context:** Borrowers comparing vehicle or property financing require comparison forms that reflect specific terms (e.g. down payment percentages or property prices) rather than forcing all loans into a generic personal principal model. Additionally, placing comparison at the bottom of a long page caused awkward scrolling.
+- **Decision:** Elevate tool mode selection (Single Calculator vs Compare Two Offers) to a prominent top navigation menu. Within comparison mode, support all three categories (Personal, Car, Home) symmetrically across Offer A and Offer B, and provide months/years repayment toggles across all calculators.
+- **Justification:** Keeps the interface focused, eliminates page clutter, and delivers genuine domain-specific comparison intelligence for cars and mortgages.

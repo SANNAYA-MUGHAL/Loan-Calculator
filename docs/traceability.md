@@ -25,9 +25,12 @@ This table maps every role, job-to-be-done, user story, and acceptance criteria 
 | Primary Borrower | J-1 | S-3 (Toggle Term Between Years and Months) | AC 3.4 (Zero/negative term in years) | `test/s3-s4.test.js` > AC 3.4 | Implemented |
 | Primary Borrower | J-1 | S-3 (Toggle Term Between Years and Months) | AC 3.5 (Fractional rounding: 2.55 yr -> 31 mo) | `test/s3-s4.test.js` > AC 3.5 | Implemented |
 | Primary Borrower | J-1 | S-3 (Toggle Term Between Years and Months) | AC 3.6 (Non-whole months: 37 mo decimal display) | `test/s3-s4.test.js` > AC 3.6 | Implemented |
+| Primary Borrower | J-1 | S-3 (Toggle Term Between Years and Months) | AC 3.7 (Home loan term unit toggle: months / years) | `test/s3-s4.test.js` > AC 3.7 | Implemented |
 | Loan Comparer | J-3 | S-4 (Compare Two Loan Offers) | AC 4.1 (Comparison trade-offs: Offer A vs Offer B) | `test/s3-s4.test.js` > AC 4.1 | Implemented |
 | Loan Comparer | J-3 | S-4 (Compare Two Loan Offers) | AC 4.2 (Error isolation between offers) | `test/s3-s4.test.js` > AC 4.2 | Implemented |
 | Loan Comparer | J-3 | S-4 (Compare Two Loan Offers) | AC 4.3 (Identical offers produce zero delta) | `test/s3-s4.test.js` > AC 4.3 | Implemented |
+| Loan Comparer | J-3 | S-4 (Compare Two Loan Offers) | AC 4.4 (Car loan offer comparison with down payments) | `test/s3-s4.test.js` > AC 4.4 | Implemented |
+| Loan Comparer | J-3 | S-4 (Compare Two Loan Offers) | AC 4.5 (Home loan offer comparison across terms) | `test/s3-s4.test.js` > AC 4.5 | Implemented |
 | Primary Borrower / Comparer | J-1 / J-3 | S-5 (Reset All Inputs) | AC 5.1 (Single loan reset clears fields, results, errors) | `test/s3-s4.test.js` > AC 5.1 + DOM | Implemented |
 | Primary Borrower / Comparer | J-1 / J-3 | S-5 (Reset All Inputs) | AC 5.2 (Comparison reset clears offers, results, summary) | `test/s3-s4.test.js` > AC 5.2 + DOM | Implemented |
 | Primary Borrower | J-2 | S-6 (Model Extra Monthly Payments) | AC 6.1 (Payoff term and interest saved) | Roadmap item (v1.1) | Not implemented |

@@ -159,6 +159,12 @@ When I switch the term unit to Years,
 Then the input displays the decimal equivalent (37 divided by 12). When I switch
 back to Months, the value returns to 37.
 
+**AC 3.7 - Home loan term unit toggle:**
+Given the Home loan type is selected,
+When I switch the term unit between Years and Months,
+Then the term is converted between years and whole months, and calculations
+accurately evaluate across the selected duration.
+
 ---
 
 ## Story S-4: Compare two loan offers (serves J-3, Implemented)
@@ -193,6 +199,25 @@ Given Offer A and Offer B both have identical terms of $15,000 at 5.0% for
 When compared,
 Then the delta shows $0.00 difference for both monthly payment and total
 interest.
+
+**AC 4.4 - Car loan offer comparison with down payments:**
+Given Offer A of a $30,000 vehicle with 20% down ($24,000 financed) at 6.0% for
+60 months, and Offer B of a $30,000 vehicle with 10% down ($27,000 financed) at
+4.5% for 60 months,
+When I compare the offers,
+Then Offer A displays monthly payment $463.99 and total interest $3,839.40,
+Offer B displays monthly payment $503.36 and total interest $3,201.60, and the
+summary highlights that Offer A saves $39.37 per month while Offer B saves
+$637.80 in total interest.
+
+**AC 4.5 - Home loan offer comparison across different terms:**
+Given Offer A of a $300,000 property with $240,000 financing at 5.0% for 30 years
+(360 months), and Offer B with $240,000 financing at 4.5% for 15 years (180 months),
+When I compare the offers,
+Then Offer A displays monthly payment $1,288.37 and total interest $223,813.20,
+Offer B displays monthly payment $1,835.98 and total interest $90,476.40, and the
+summary highlights that Offer A saves $547.61 per month while Offer B saves
+$133,336.80 in total interest.
 
 ---
 

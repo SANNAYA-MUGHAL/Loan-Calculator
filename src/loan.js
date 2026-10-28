@@ -158,12 +158,13 @@ export function validateCarLoanInputs({ vehiclePrice, downPaymentPct, annualRate
 
 /**
  * Validates Home loan inputs.
- * Term is entered in years; converted to whole months by rounding.
+ * Supports term specified either in years (termYears) or in months (termMonths).
+ * When entered in years, converted to whole months by rounding.
  *
- * @param {{ propertyPrice: string|number, financingAmount: string|number, annualRate: string|number, termYears: string|number }} params
+ * @param {{ propertyPrice: string|number, financingAmount: string|number, annualRate: string|number, termYears?: string|number, termMonths?: string|number }} params
  * @returns {{ isValid: boolean, errors: Object, values?: { propertyPrice: number, financingAmount: number, annualRate: number, termMonths: number } }}
  */
-export function validateHomeLoanInputs({ propertyPrice, financingAmount, annualRate, termYears }) {
+export function validateHomeLoanInputs({ propertyPrice, financingAmount, annualRate, termYears, termMonths }) {
   const errors = {};
 
   const parsedProperty = parseNumericInput(propertyPrice, 'Property price');
@@ -184,17 +185,24 @@ export function validateHomeLoanInputs({ propertyPrice, financingAmount, annualR
 
   const parsedRate = validateRate(annualRate, errors);
 
-  // Term entered in years; convert to whole months
-  const parsedYears = parseNumericInput(termYears, 'Loan term');
   let termMonthsValue;
-  if (!parsedYears.valid) {
-    errors.termYears = parsedYears.error;
+  if (termMonths !== undefined && termMonths !== null) {
+    const parsedTerm = validateTermMonths(termMonths, errors);
+    if (parsedTerm.valid) {
+      termMonthsValue = Math.round(parsedTerm.value);
+    }
   } else {
-    termMonthsValue = Math.round(parsedYears.value * 12);
-    if (termMonthsValue < 1) {
-      errors.termYears = 'Term must be at least 1 month';
-    } else if (termMonthsValue > 480) {
-      errors.termYears = 'Term must not exceed 480 months (40 years)';
+    // Term entered in years; convert to whole months
+    const parsedYears = parseNumericInput(termYears, 'Loan term');
+    if (!parsedYears.valid) {
+      errors.termYears = parsedYears.error;
+    } else {
+      termMonthsValue = Math.round(parsedYears.value * 12);
+      if (termMonthsValue < 1) {
+        errors.termYears = 'Term must be at least 1 month';
+      } else if (termMonthsValue > 480) {
+        errors.termYears = 'Term must not exceed 480 months (40 years)';
+      }
     }
   }
 

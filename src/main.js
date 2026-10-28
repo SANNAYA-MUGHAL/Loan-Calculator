@@ -9,11 +9,35 @@ import {
 } from './loan.js';
 
 // ---------------------------------------------------------------------------
+// Mode Navigation (Single Calculator vs Compare Offers)
+// ---------------------------------------------------------------------------
+const modeCalculateBtn  = document.getElementById('mode-calculate-btn');
+const modeCompareBtn    = document.getElementById('mode-compare-btn');
+const singleCalcSection = document.getElementById('single-calc-section');
+const comparisonSection = document.getElementById('comparison-section');
+
+let currentMode = 'calculate'; // 'calculate' | 'compare'
+
+function switchMode(newMode) {
+  currentMode = newMode;
+  modeCalculateBtn.classList.toggle('active', newMode === 'calculate');
+  modeCalculateBtn.setAttribute('aria-selected', newMode === 'calculate');
+  modeCompareBtn.classList.toggle('active', newMode === 'compare');
+  modeCompareBtn.setAttribute('aria-selected', newMode === 'compare');
+
+  singleCalcSection.classList.toggle('hidden', newMode !== 'calculate');
+  comparisonSection.classList.toggle('hidden', newMode !== 'compare');
+}
+
+modeCalculateBtn.addEventListener('click', () => switchMode('calculate'));
+modeCompareBtn.addEventListener('click', () => switchMode('compare'));
+
+// ---------------------------------------------------------------------------
 // DOM references -- Single Loan Calculator
 // ---------------------------------------------------------------------------
 const loanForm         = document.getElementById('loan-form');
 const resetBtn         = document.getElementById('reset-btn');
-const typeButtons      = document.querySelectorAll('.type-btn');
+const singleTypeBtns   = document.querySelectorAll('#single-type-selector .type-btn');
 
 // Field groups
 const fieldsPersonal   = document.getElementById('fields-personal');
@@ -26,22 +50,17 @@ const termInput        = document.getElementById('term');
 const termLabel        = document.getElementById('term-label');
 const termHint         = document.getElementById('term-hint');
 const termUnit         = document.getElementById('term-unit');
-const termUnitToggle   = document.getElementById('term-unit-toggle');
 const toggleMonthsBtn  = document.getElementById('toggle-months');
 const toggleYearsBtn   = document.getElementById('toggle-years');
 
-// Personal inputs
-const principalInput   = document.getElementById('principal');
-
-// Car inputs
+// Category inputs
+const principalInput       = document.getElementById('principal');
 const vehiclePriceInput    = document.getElementById('vehiclePrice');
 const downPaymentPctInput  = document.getElementById('downPaymentPct');
-
-// Home inputs
 const propertyPriceInput   = document.getElementById('propertyPrice');
 const financingAmountInput = document.getElementById('financingAmount');
 
-// Error elements -- single calculator
+// Error elements
 const principalError       = document.getElementById('principal-error');
 const vehiclePriceError    = document.getElementById('vehiclePrice-error');
 const downPaymentPctError  = document.getElementById('downPaymentPct-error');
@@ -51,78 +70,50 @@ const annualRateError      = document.getElementById('annualRate-error');
 const termError            = document.getElementById('term-error');
 
 // Result elements
-const resultsCard              = document.getElementById('results-card');
-const financedAmountRow        = document.getElementById('financed-amount-row');
-const resultFinancedAmount     = document.getElementById('result-financed-amount');
-const resultMonthlyPayment     = document.getElementById('result-monthly-payment');
-const resultTotalInterest      = document.getElementById('result-total-interest');
-const resultTotalCost          = document.getElementById('result-total-cost');
+const financedAmountRow    = document.getElementById('financed-amount-row');
+const resultFinancedAmount = document.getElementById('result-financed-amount');
+const resultMonthlyPayment = document.getElementById('result-monthly-payment');
+const resultTotalInterest  = document.getElementById('result-total-interest');
+const resultTotalCost      = document.getElementById('result-total-cost');
+
+let singleCurrentType = 'personal'; // 'personal' | 'car' | 'home'
+let singleTermUnit    = 'months';   // 'months' | 'years'
 
 // ---------------------------------------------------------------------------
-// DOM references -- Comparison (S-4)
-// ---------------------------------------------------------------------------
-const compareBtn        = document.getElementById('compare-btn');
-const compareResetBtn   = document.getElementById('compare-reset-btn');
-
-// Offer A inputs
-const aPrincipalInput = document.getElementById('a-principal');
-const aRateInput      = document.getElementById('a-rate');
-const aTermInput      = document.getElementById('a-term');
-
-// Offer A error elements
-const aPrincipalError = document.getElementById('a-principal-error');
-const aRateError      = document.getElementById('a-rate-error');
-const aTermError      = document.getElementById('a-term-error');
-
-// Offer A result elements
-const aMonthly   = document.getElementById('a-monthly');
-const aInterest  = document.getElementById('a-interest');
-const aCost      = document.getElementById('a-cost');
-
-// Offer B inputs
-const bPrincipalInput = document.getElementById('b-principal');
-const bRateInput      = document.getElementById('b-rate');
-const bTermInput      = document.getElementById('b-term');
-
-// Offer B error elements
-const bPrincipalError = document.getElementById('b-principal-error');
-const bRateError      = document.getElementById('b-rate-error');
-const bTermError      = document.getElementById('b-term-error');
-
-// Offer B result elements
-const bMonthly   = document.getElementById('b-monthly');
-const bInterest  = document.getElementById('b-interest');
-const bCost      = document.getElementById('b-cost');
-
-// Comparison summary elements
-const summaryPlaceholder = document.getElementById('summary-placeholder');
-const summaryContent     = document.getElementById('summary-content');
-const summaryMonthlyText = document.getElementById('summary-monthly-text');
-const summaryInterestText= document.getElementById('summary-interest-text');
-
-// ---------------------------------------------------------------------------
-// State
-// ---------------------------------------------------------------------------
-let currentType = 'personal'; // 'personal' | 'car' | 'home'
-let termCurrentUnit = 'months'; // 'months' | 'years' (S-3 toggle state)
-
-// ---------------------------------------------------------------------------
-// Generic error helpers
+// Helper: Error management
 // ---------------------------------------------------------------------------
 function setFieldError(inputEl, errorEl, message) {
+  if (!errorEl || !inputEl) return;
   errorEl.textContent = message;
   errorEl.classList.add('visible');
-  inputEl.closest('.form-group').classList.add('has-error');
+  const group = inputEl.closest('.form-group');
+  if (group) group.classList.add('has-error');
 }
 
 function clearFieldError(inputEl, errorEl) {
-  if (!inputEl || !errorEl) return;
+  if (!errorEl || !inputEl) return;
   errorEl.textContent = '';
   errorEl.classList.remove('visible');
-  inputEl.closest('.form-group').classList.remove('has-error');
+  const group = inputEl.closest('.form-group');
+  if (group) group.classList.remove('has-error');
 }
 
-function clearAllErrors() {
+function attachClearOnInput(inputEl, errorEl) {
+  if (inputEl && errorEl) {
+    inputEl.addEventListener('input', () => clearFieldError(inputEl, errorEl));
+  }
+}
+
+// Single calc input error attachments
+attachClearOnInput(principalInput, principalError);
+attachClearOnInput(vehiclePriceInput, vehiclePriceError);
+attachClearOnInput(downPaymentPctInput, downPaymentPctError);
+attachClearOnInput(propertyPriceInput, propertyPriceError);
+attachClearOnInput(financingAmountInput, financingAmountError);
+attachClearOnInput(annualRateInput, annualRateError);
+attachClearOnInput(termInput, termError);
+
+function clearAllSingleErrors() {
   clearFieldError(principalInput, principalError);
   clearFieldError(vehiclePriceInput, vehiclePriceError);
   clearFieldError(downPaymentPctInput, downPaymentPctError);
@@ -133,9 +124,9 @@ function clearAllErrors() {
 }
 
 // ---------------------------------------------------------------------------
-// Single-loan results helpers
+// Single Calculator: Results
 // ---------------------------------------------------------------------------
-function showResults(result, financedAmount = null) {
+function showSingleResults(result, financedAmount = null) {
   resultMonthlyPayment.textContent = formatCurrency(result.monthlyPayment);
   resultTotalInterest.textContent  = formatCurrency(result.totalInterest);
   resultTotalCost.textContent      = formatCurrency(result.totalCost);
@@ -148,7 +139,7 @@ function showResults(result, financedAmount = null) {
   }
 }
 
-function clearResults() {
+function clearSingleResults() {
   resultMonthlyPayment.textContent = '--';
   resultTotalInterest.textContent  = '--';
   resultTotalCost.textContent      = '--';
@@ -156,21 +147,17 @@ function clearResults() {
 }
 
 // ---------------------------------------------------------------------------
-// S-3: Term unit toggle (Personal and Car only)
+// Single Calculator: Term Unit Toggle (Months / Years)
 // ---------------------------------------------------------------------------
-function applyTermUnit(unit) {
-  termCurrentUnit = unit;
-
-  // Update toggle button active state
+function applySingleTermUnit(unit) {
+  singleTermUnit = unit;
   toggleMonthsBtn.classList.toggle('active', unit === 'months');
   toggleYearsBtn.classList.toggle('active', unit === 'years');
-
-  // Update suffix label
   termUnit.textContent = unit;
 
   if (unit === 'years') {
     termLabel.textContent = 'Loan Term (Years)';
-    termHint.textContent  = 'Enter the duration in years. Fractional years allowed; will be rounded to the nearest month.';
+    termHint.textContent  = 'Enter duration in years. Fractional years allowed; rounded to nearest month.';
     termInput.placeholder = 'Enter duration in years (e.g. 5)';
   } else {
     termLabel.textContent = 'Loan Term (Months)';
@@ -179,117 +166,82 @@ function applyTermUnit(unit) {
   }
 }
 
-function onToggleUnit(newUnit) {
-  if (newUnit === termCurrentUnit) return;
-
-  // Convert the currently displayed value to the new unit (AC 3.1, 3.2, 3.6)
+function onToggleSingleTerm(newUnit) {
+  if (newUnit === singleTermUnit) return;
   const raw = termInput.value.trim();
   if (raw !== '') {
     const num = Number(raw);
     if (!isNaN(num)) {
-      const converted = convertTermUnit(num, termCurrentUnit, newUnit);
-      // For years display show up to 10 decimal places but strip trailing zeros
+      const converted = convertTermUnit(num, singleTermUnit, newUnit);
       termInput.value = newUnit === 'years'
         ? parseFloat(converted.toFixed(10)).toString()
         : String(converted);
     }
   }
-
   clearFieldError(termInput, termError);
-  applyTermUnit(newUnit);
+  applySingleTermUnit(newUnit);
 }
 
-toggleMonthsBtn.addEventListener('click', () => onToggleUnit('months'));
-toggleYearsBtn.addEventListener('click',  () => onToggleUnit('years'));
+toggleMonthsBtn.addEventListener('click', () => onToggleSingleTerm('months'));
+toggleYearsBtn.addEventListener('click',  () => onToggleSingleTerm('years'));
 
 // ---------------------------------------------------------------------------
-// Loan type switching (AC 9.1, AC 9.8)
+// Single Calculator: Category Switching (AC 9.1, AC 9.8)
 // ---------------------------------------------------------------------------
-function switchToType(type) {
-  currentType = type;
+function switchSingleType(type) {
+  singleCurrentType = type;
+  singleTypeBtns.forEach(btn => btn.classList.toggle('active', btn.dataset.type === type));
 
-  // Update active tab button
-  typeButtons.forEach(btn => btn.classList.toggle('active', btn.dataset.type === type));
-
-  // Show/hide field groups
   fieldsPersonal.classList.toggle('hidden', type !== 'personal');
   fieldsCar.classList.toggle('hidden', type !== 'car');
   fieldsHome.classList.toggle('hidden', type !== 'home');
 
   if (type === 'home') {
-    // Home uses fixed years; hide toggle and lock label
-    termUnitToggle.classList.add('hidden');
-    termLabel.textContent = 'Loan Term (Years)';
-    termHint.textContent  = 'Enter the duration in years (e.g. 30). Converted to whole months, rounded to nearest month.';
-    termUnit.textContent  = 'years';
-    termInput.placeholder = 'Enter duration in years (e.g. 30)';
-    // Reset toggle state to months for when we leave Home
-    termCurrentUnit = 'years';
+    applySingleTermUnit('years');
   } else {
-    // Personal / Car: show toggle, reset to months
-    termUnitToggle.classList.remove('hidden');
-    applyTermUnit('months');
+    applySingleTermUnit('months');
   }
 
-  // Clear all state on type switch (AC 9.8)
   loanForm.reset();
-  clearAllErrors();
-  clearResults();
+  clearAllSingleErrors();
+  clearSingleResults();
 }
 
-typeButtons.forEach(btn => {
-  btn.addEventListener('click', () => switchToType(btn.dataset.type));
+singleTypeBtns.forEach(btn => {
+  btn.addEventListener('click', () => switchSingleType(btn.dataset.type));
 });
 
 // ---------------------------------------------------------------------------
-// Real-time error clearing (AC 1.7, AC 2.4)
+// Single Calculator: Calculation
 // ---------------------------------------------------------------------------
-function attachClearOnInput(inputEl, errorEl) {
-  inputEl.addEventListener('input', () => clearFieldError(inputEl, errorEl));
-}
-
-attachClearOnInput(principalInput, principalError);
-attachClearOnInput(vehiclePriceInput, vehiclePriceError);
-attachClearOnInput(downPaymentPctInput, downPaymentPctError);
-attachClearOnInput(propertyPriceInput, propertyPriceError);
-attachClearOnInput(financingAmountInput, financingAmountError);
-attachClearOnInput(annualRateInput, annualRateError);
-attachClearOnInput(termInput, termError);
-
-// ---------------------------------------------------------------------------
-// Single-loan Calculate (S-1, S-2, S-9)
-// ---------------------------------------------------------------------------
-function getTermAsMonths() {
-  // For Personal/Car: if toggle is in years mode, convert to months first.
-  // For Home: main.js passes the raw years value to validateHomeLoanInputs.
-  if (currentType === 'home') return termInput.value; // handled inside validateHomeLoanInputs
-  if (termCurrentUnit === 'years') {
-    const raw = termInput.value.trim();
+function getSingleTermMonths() {
+  const raw = termInput.value.trim();
+  if (singleTermUnit === 'years') {
     const num = Number(raw);
     if (!isNaN(num) && raw !== '') {
       return String(convertTermUnit(num, 'years', 'months'));
     }
-    return raw; // let validator produce the error
+    return raw;
   }
   return termInput.value;
 }
 
-function handleCalculate(e) {
+function handleSingleCalculate(e) {
   e.preventDefault();
-  clearAllErrors();
+  clearAllSingleErrors();
 
   const rate = annualRateInput.value;
   let validation;
 
-  if (currentType === 'personal') {
+  if (singleCurrentType === 'personal') {
     validation = validateLoanInputs({
       principal:  principalInput.value.replace(/,/g, ''),
       annualRate: rate,
-      termMonths: getTermAsMonths()
+      termMonths: getSingleTermMonths()
     });
 
     if (!validation.isValid) {
-      clearResults();
+      clearSingleResults();
       if (validation.errors.principal)  setFieldError(principalInput, principalError, validation.errors.principal);
       if (validation.errors.annualRate) setFieldError(annualRateInput, annualRateError, validation.errors.annualRate);
       if (validation.errors.termMonths) setFieldError(termInput, termError, validation.errors.termMonths);
@@ -297,18 +249,18 @@ function handleCalculate(e) {
     }
 
     const { principal, annualRate, termMonths } = validation.values;
-    showResults(calculateLoan(principal, annualRate, termMonths));
+    showSingleResults(calculateLoan(principal, annualRate, termMonths));
 
-  } else if (currentType === 'car') {
+  } else if (singleCurrentType === 'car') {
     validation = validateCarLoanInputs({
       vehiclePrice:   vehiclePriceInput.value.replace(/,/g, ''),
       downPaymentPct: downPaymentPctInput.value,
       annualRate:     rate,
-      termMonths:     getTermAsMonths()
+      termMonths:     getSingleTermMonths()
     });
 
     if (!validation.isValid) {
-      clearResults();
+      clearSingleResults();
       if (validation.errors.vehiclePrice)   setFieldError(vehiclePriceInput, vehiclePriceError, validation.errors.vehiclePrice);
       if (validation.errors.downPaymentPct) setFieldError(downPaymentPctInput, downPaymentPctError, validation.errors.downPaymentPct);
       if (validation.errors.annualRate)     setFieldError(annualRateInput, annualRateError, validation.errors.annualRate);
@@ -317,93 +269,263 @@ function handleCalculate(e) {
     }
 
     const { financedAmount, annualRate, termMonths } = validation.values;
-    showResults(calculateLoan(financedAmount, annualRate, termMonths), financedAmount);
+    showSingleResults(calculateLoan(financedAmount, annualRate, termMonths), financedAmount);
 
   } else {
-    // home -- term entered in years; validateHomeLoanInputs handles the conversion
+    // home
     validation = validateHomeLoanInputs({
       propertyPrice:   propertyPriceInput.value.replace(/,/g, ''),
       financingAmount: financingAmountInput.value.replace(/,/g, ''),
       annualRate:      rate,
-      termYears:       termInput.value
+      termMonths:      getSingleTermMonths()
     });
 
     if (!validation.isValid) {
-      clearResults();
+      clearSingleResults();
       if (validation.errors.propertyPrice)   setFieldError(propertyPriceInput, propertyPriceError, validation.errors.propertyPrice);
       if (validation.errors.financingAmount) setFieldError(financingAmountInput, financingAmountError, validation.errors.financingAmount);
       if (validation.errors.annualRate)      setFieldError(annualRateInput, annualRateError, validation.errors.annualRate);
-      if (validation.errors.termYears)       setFieldError(termInput, termError, validation.errors.termYears);
+      if (validation.errors.termYears || validation.errors.termMonths) {
+        setFieldError(termInput, termError, validation.errors.termYears || validation.errors.termMonths);
+      }
       return;
     }
 
     const { financingAmount, annualRate, termMonths } = validation.values;
-    showResults(calculateLoan(financingAmount, annualRate, termMonths));
+    showSingleResults(calculateLoan(financingAmount, annualRate, termMonths));
   }
 }
 
-// ---------------------------------------------------------------------------
-// Reset (AC 5.1, AC 9.9)
-// ---------------------------------------------------------------------------
-function handleReset() {
+function handleSingleReset() {
   loanForm.reset();
-  clearAllErrors();
-  clearResults();
-  // Reset toggle back to months on Reset (AC 5.1 full reset)
-  if (currentType !== 'home') {
-    applyTermUnit('months');
+  clearAllSingleErrors();
+  clearSingleResults();
+  if (singleCurrentType === 'home') {
+    applySingleTermUnit('years');
+  } else {
+    applySingleTermUnit('months');
   }
 }
 
-loanForm.addEventListener('submit', handleCalculate);
-resetBtn.addEventListener('click', handleReset);
+loanForm.addEventListener('submit', handleSingleCalculate);
+resetBtn.addEventListener('click', handleSingleReset);
+
+// ===========================================================================
+// SECTION 2: Loan Comparison (Personal, Car, Home)
+// ===========================================================================
+const compareTypeBtns = document.querySelectorAll('#comparison-type-selector .compare-type-btn');
+const compareBtn      = document.getElementById('compare-btn');
+const compareResetBtn = document.getElementById('compare-reset-btn');
+
+let compareCurrentType = 'personal'; // 'personal' | 'car' | 'home'
+let aTermUnit          = 'months';   // 'months' | 'years'
+let bTermUnit          = 'months';   // 'months' | 'years'
+
+// Offer A DOM elements
+const aFieldsPersonal = document.getElementById('a-fields-personal');
+const aFieldsCar      = document.getElementById('a-fields-car');
+const aFieldsHome     = document.getElementById('a-fields-home');
+const aPrincipalInput = document.getElementById('a-principal');
+const aVehicleInput   = document.getElementById('a-vehiclePrice');
+const aDownInput      = document.getElementById('a-downPaymentPct');
+const aPropertyInput  = document.getElementById('a-propertyPrice');
+const aFinancingInput = document.getElementById('a-financingAmount');
+const aRateInput      = document.getElementById('a-rate');
+const aTermInput      = document.getElementById('a-term');
+const aTermLabel      = document.getElementById('a-term-label');
+const aTermUnitEl     = document.getElementById('a-term-unit');
+const aToggleMonths   = document.getElementById('a-toggle-months');
+const aToggleYears    = document.getElementById('a-toggle-years');
+
+const aPrincipalError = document.getElementById('a-principal-error');
+const aVehicleError   = document.getElementById('a-vehiclePrice-error');
+const aDownError      = document.getElementById('a-downPaymentPct-error');
+const aPropertyError  = document.getElementById('a-propertyPrice-error');
+const aFinancingError = document.getElementById('a-financingAmount-error');
+const aRateError      = document.getElementById('a-rate-error');
+const aTermError      = document.getElementById('a-term-error');
+
+const aFinancedRow    = document.getElementById('a-financed-row');
+const aFinancedVal    = document.getElementById('a-financed');
+const aMonthlyVal     = document.getElementById('a-monthly');
+const aInterestVal    = document.getElementById('a-interest');
+const aCostVal        = document.getElementById('a-cost');
+
+// Offer B DOM elements
+const bFieldsPersonal = document.getElementById('b-fields-personal');
+const bFieldsCar      = document.getElementById('b-fields-car');
+const bFieldsHome     = document.getElementById('b-fields-home');
+const bPrincipalInput = document.getElementById('b-principal');
+const bVehicleInput   = document.getElementById('b-vehiclePrice');
+const bDownInput      = document.getElementById('b-downPaymentPct');
+const bPropertyInput  = document.getElementById('b-propertyPrice');
+const bFinancingInput = document.getElementById('b-financingAmount');
+const bRateInput      = document.getElementById('b-rate');
+const bTermInput      = document.getElementById('b-term');
+const bTermLabel      = document.getElementById('b-term-label');
+const bTermUnitEl     = document.getElementById('b-term-unit');
+const bToggleMonths   = document.getElementById('b-toggle-months');
+const bToggleYears    = document.getElementById('b-toggle-years');
+
+const bPrincipalError = document.getElementById('b-principal-error');
+const bVehicleError   = document.getElementById('b-vehiclePrice-error');
+const bDownError      = document.getElementById('b-downPaymentPct-error');
+const bPropertyError  = document.getElementById('b-propertyPrice-error');
+const bFinancingError = document.getElementById('b-financingAmount-error');
+const bRateError      = document.getElementById('b-rate-error');
+const bTermError      = document.getElementById('b-term-error');
+
+const bFinancedRow    = document.getElementById('b-financed-row');
+const bFinancedVal    = document.getElementById('b-financed');
+const bMonthlyVal     = document.getElementById('b-monthly');
+const bInterestVal    = document.getElementById('b-interest');
+const bCostVal        = document.getElementById('b-cost');
+
+// Comparison Summary elements
+const summaryPlaceholder  = document.getElementById('summary-placeholder');
+const summaryContent      = document.getElementById('summary-content');
+const summaryMonthlyText  = document.getElementById('summary-monthly-text');
+const summaryInterestText = document.getElementById('summary-interest-text');
+
+// Attach error clearing for comparison fields
+[
+  [aPrincipalInput, aPrincipalError],
+  [aVehicleInput, aVehicleError],
+  [aDownInput, aDownError],
+  [aPropertyInput, aPropertyError],
+  [aFinancingInput, aFinancingError],
+  [aRateInput, aRateError],
+  [aTermInput, aTermError],
+  [bPrincipalInput, bPrincipalError],
+  [bVehicleInput, bVehicleError],
+  [bDownInput, bDownError],
+  [bPropertyInput, bPropertyError],
+  [bFinancingInput, bFinancingError],
+  [bRateInput, bRateError],
+  [bTermInput, bTermError]
+].forEach(([input, err]) => attachClearOnInput(input, err));
+
+function clearAllCompareErrors() {
+  [
+    [aPrincipalInput, aPrincipalError],
+    [aVehicleInput, aVehicleError],
+    [aDownInput, aDownError],
+    [aPropertyInput, aPropertyError],
+    [aFinancingInput, aFinancingError],
+    [aRateInput, aRateError],
+    [aTermInput, aTermError],
+    [bPrincipalInput, bPrincipalError],
+    [bVehicleInput, bVehicleError],
+    [bDownInput, bDownError],
+    [bPropertyInput, bPropertyError],
+    [bFinancingInput, bFinancingError],
+    [bRateInput, bRateError],
+    [bTermInput, bTermError]
+  ].forEach(([input, err]) => clearFieldError(input, err));
+}
 
 // ---------------------------------------------------------------------------
-// S-4: Loan Comparison
+// Comparison: Term Unit Toggles for Offer A and Offer B
 // ---------------------------------------------------------------------------
-
-// Offer-specific error helpers (comparison forms have no nearest .form-group
-// wrapping at the offer level, so we keep a lightweight version)
-function setOfferError(inputEl, errorEl, message) {
-  errorEl.textContent = message;
-  errorEl.classList.add('visible');
-  inputEl.closest('.form-group').classList.add('has-error');
+function applyOfferTermUnit(offer, unit) {
+  if (offer === 'A') {
+    aTermUnit = unit;
+    aToggleMonths.classList.toggle('active', unit === 'months');
+    aToggleYears.classList.toggle('active', unit === 'years');
+    aTermUnitEl.textContent = unit;
+    aTermLabel.textContent = unit === 'years' ? 'Loan Term (Years)' : 'Loan Term (Months)';
+    aTermInput.placeholder = unit === 'years' ? 'e.g. 5' : 'e.g. 36';
+  } else {
+    bTermUnit = unit;
+    bToggleMonths.classList.toggle('active', unit === 'months');
+    bToggleYears.classList.toggle('active', unit === 'years');
+    bTermUnitEl.textContent = unit;
+    bTermLabel.textContent = unit === 'years' ? 'Loan Term (Years)' : 'Loan Term (Months)';
+    bTermInput.placeholder = unit === 'years' ? 'e.g. 5' : 'e.g. 48';
+  }
 }
 
-function clearOfferError(inputEl, errorEl) {
-  if (!inputEl || !errorEl) return;
-  errorEl.textContent = '';
-  errorEl.classList.remove('visible');
-  inputEl.closest('.form-group').classList.remove('has-error');
+function onToggleOfferTerm(offer, newUnit) {
+  const currentUnit = offer === 'A' ? aTermUnit : bTermUnit;
+  const inputEl     = offer === 'A' ? aTermInput : bTermInput;
+  const errorEl     = offer === 'A' ? aTermError : bTermError;
+
+  if (newUnit === currentUnit) return;
+  const raw = inputEl.value.trim();
+  if (raw !== '') {
+    const num = Number(raw);
+    if (!isNaN(num)) {
+      const converted = convertTermUnit(num, currentUnit, newUnit);
+      inputEl.value = newUnit === 'years'
+        ? parseFloat(converted.toFixed(10)).toString()
+        : String(converted);
+    }
+  }
+  clearFieldError(inputEl, errorEl);
+  applyOfferTermUnit(offer, newUnit);
 }
 
-function clearAllOfferErrors() {
-  clearOfferError(aPrincipalInput, aPrincipalError);
-  clearOfferError(aRateInput, aRateError);
-  clearOfferError(aTermInput, aTermError);
-  clearOfferError(bPrincipalInput, bPrincipalError);
-  clearOfferError(bRateInput, bRateError);
-  clearOfferError(bTermInput, bTermError);
+aToggleMonths.addEventListener('click', () => onToggleOfferTerm('A', 'months'));
+aToggleYears.addEventListener('click',  () => onToggleOfferTerm('A', 'years'));
+bToggleMonths.addEventListener('click', () => onToggleOfferTerm('B', 'months'));
+bToggleYears.addEventListener('click',  () => onToggleOfferTerm('B', 'years'));
+
+// ---------------------------------------------------------------------------
+// Comparison: Category Switching (Personal / Car / Home)
+// ---------------------------------------------------------------------------
+function switchCompareType(type) {
+  compareCurrentType = type;
+  compareTypeBtns.forEach(btn => btn.classList.toggle('active', btn.dataset.type === type));
+
+  // Offer A fields
+  aFieldsPersonal.classList.toggle('hidden', type !== 'personal');
+  aFieldsCar.classList.toggle('hidden', type !== 'car');
+  aFieldsHome.classList.toggle('hidden', type !== 'home');
+
+  // Offer B fields
+  bFieldsPersonal.classList.toggle('hidden', type !== 'personal');
+  bFieldsCar.classList.toggle('hidden', type !== 'car');
+  bFieldsHome.classList.toggle('hidden', type !== 'home');
+
+  // Default unit: Home defaults to years, Personal/Car to months
+  const defaultUnit = type === 'home' ? 'years' : 'months';
+  applyOfferTermUnit('A', defaultUnit);
+  applyOfferTermUnit('B', defaultUnit);
+
+  handleCompareReset();
 }
 
-// Real-time error clearing for comparison fields
-attachClearOnInput(aPrincipalInput, aPrincipalError);
-attachClearOnInput(aRateInput, aRateError);
-attachClearOnInput(aTermInput, aTermError);
-attachClearOnInput(bPrincipalInput, bPrincipalError);
-attachClearOnInput(bRateInput, bRateError);
-attachClearOnInput(bTermInput, bTermError);
+compareTypeBtns.forEach(btn => {
+  btn.addEventListener('click', () => switchCompareType(btn.dataset.type));
+});
 
-function showOfferResults(monthly, interest, cost, monthlyEl, interestEl, costEl) {
-  monthlyEl.textContent  = formatCurrency(monthly);
-  interestEl.textContent = formatCurrency(interest);
-  costEl.textContent     = formatCurrency(cost);
-}
+// ---------------------------------------------------------------------------
+// Comparison: Results display
+// ---------------------------------------------------------------------------
+function showOfferResult(prefix, result, financedAmount = null) {
+  const monthlyEl  = prefix === 'A' ? aMonthlyVal : bMonthlyVal;
+  const interestEl = prefix === 'A' ? aInterestVal : bInterestVal;
+  const costEl     = prefix === 'A' ? aCostVal : bCostVal;
+  const finRow     = prefix === 'A' ? aFinancedRow : bFinancedRow;
+  const finVal     = prefix === 'A' ? aFinancedVal : bFinancedVal;
 
-function clearOfferResults(monthlyEl, interestEl, costEl) {
-  monthlyEl.textContent  = '--';
-  interestEl.textContent = '--';
-  costEl.textContent     = '--';
+  if (result) {
+    monthlyEl.textContent  = formatCurrency(result.monthlyPayment);
+    interestEl.textContent = formatCurrency(result.totalInterest);
+    costEl.textContent     = formatCurrency(result.totalCost);
+
+    if (financedAmount !== null) {
+      finVal.textContent = formatCurrency(financedAmount);
+      finRow.classList.remove('hidden');
+    } else {
+      finRow.classList.add('hidden');
+    }
+  } else {
+    monthlyEl.textContent  = '--';
+    interestEl.textContent = '--';
+    costEl.textContent     = '--';
+    finRow.classList.add('hidden');
+  }
 }
 
 function showComparisonSummary(delta) {
@@ -417,7 +539,7 @@ function showComparisonSummary(delta) {
   summaryPlaceholder.classList.add('hidden');
   summaryContent.classList.remove('hidden');
 
-  // Monthly payment line
+  // Monthly payment delta
   if (delta.lowerMonthlyOffer === 'equal') {
     summaryMonthlyText.textContent = 'Both offers have the same monthly payment ($0.00 difference).';
     summaryMonthlyText.className   = 'summary-value equal';
@@ -428,7 +550,7 @@ function showComparisonSummary(delta) {
     summaryMonthlyText.className   = 'summary-value winner';
   }
 
-  // Total interest line
+  // Total interest delta
   if (delta.lowerTotalInterestOffer === 'equal') {
     summaryInterestText.textContent = 'Both offers cost the same total interest ($0.00 difference).';
     summaryInterestText.className   = 'summary-value equal';
@@ -440,75 +562,127 @@ function showComparisonSummary(delta) {
   }
 }
 
-function clearComparisonSummary() {
-  summaryContent.classList.add('hidden');
-  summaryPlaceholder.classList.remove('hidden');
-  summaryPlaceholder.textContent = 'Enter valid values for both offers to compare.';
+// ---------------------------------------------------------------------------
+// Comparison: Execution
+// ---------------------------------------------------------------------------
+function getOfferTermMonths(prefix) {
+  const inputEl = prefix === 'A' ? aTermInput : bTermInput;
+  const unit    = prefix === 'A' ? aTermUnit : bTermUnit;
+  const raw     = inputEl.value.trim();
+  if (unit === 'years') {
+    const num = Number(raw);
+    if (!isNaN(num) && raw !== '') {
+      return String(convertTermUnit(num, 'years', 'months'));
+    }
+    return raw;
+  }
+  return inputEl.value;
+}
+
+function validateOffer(prefix) {
+  const termMonths = getOfferTermMonths(prefix);
+
+  if (compareCurrentType === 'personal') {
+    const princEl = prefix === 'A' ? aPrincipalInput : bPrincipalInput;
+    const rateEl  = prefix === 'A' ? aRateInput : bRateInput;
+    const errP    = prefix === 'A' ? aPrincipalError : bPrincipalError;
+    const errR    = prefix === 'A' ? aRateError : bRateError;
+    const errT    = prefix === 'A' ? aTermError : bTermError;
+
+    const val = validateLoanInputs({
+      principal:  princEl.value.replace(/,/g, ''),
+      annualRate: rateEl.value,
+      termMonths
+    });
+
+    if (!val.isValid) {
+      if (val.errors.principal)  setFieldError(princEl, errP, val.errors.principal);
+      if (val.errors.annualRate) setFieldError(rateEl, errR, val.errors.annualRate);
+      if (val.errors.termMonths) setFieldError(prefix === 'A' ? aTermInput : bTermInput, errT, val.errors.termMonths);
+      return null;
+    }
+    return { principal: val.values.principal, annualRate: val.values.annualRate, termMonths: val.values.termMonths, financedAmount: null };
+
+  } else if (compareCurrentType === 'car') {
+    const vehEl  = prefix === 'A' ? aVehicleInput : bVehicleInput;
+    const downEl = prefix === 'A' ? aDownInput : bDownInput;
+    const rateEl = prefix === 'A' ? aRateInput : bRateInput;
+    const errV   = prefix === 'A' ? aVehicleError : bVehicleError;
+    const errD   = prefix === 'A' ? aDownError : bDownError;
+    const errR   = prefix === 'A' ? aRateError : bRateError;
+    const errT   = prefix === 'A' ? aTermError : bTermError;
+
+    const val = validateCarLoanInputs({
+      vehiclePrice:   vehEl.value.replace(/,/g, ''),
+      downPaymentPct: downEl.value,
+      annualRate:     rateEl.value,
+      termMonths
+    });
+
+    if (!val.isValid) {
+      if (val.errors.vehiclePrice)   setFieldError(vehEl, errV, val.errors.vehiclePrice);
+      if (val.errors.downPaymentPct) setFieldError(downEl, errD, val.errors.downPaymentPct);
+      if (val.errors.annualRate)     setFieldError(rateEl, errR, val.errors.annualRate);
+      if (val.errors.termMonths)     setFieldError(prefix === 'A' ? aTermInput : bTermInput, errT, val.errors.termMonths);
+      return null;
+    }
+    return { principal: val.values.financedAmount, annualRate: val.values.annualRate, termMonths: val.values.termMonths, financedAmount: val.values.financedAmount };
+
+  } else {
+    // home
+    const propEl = prefix === 'A' ? aPropertyInput : bPropertyInput;
+    const finEl  = prefix === 'A' ? aFinancingInput : bFinancingInput;
+    const rateEl = prefix === 'A' ? aRateInput : bRateInput;
+    const errPr  = prefix === 'A' ? aPropertyError : bPropertyError;
+    const errFi  = prefix === 'A' ? aFinancingError : bFinancingError;
+    const errR   = prefix === 'A' ? aRateError : bRateError;
+    const errT   = prefix === 'A' ? aTermError : bTermError;
+
+    const val = validateHomeLoanInputs({
+      propertyPrice:   propEl.value.replace(/,/g, ''),
+      financingAmount: finEl.value.replace(/,/g, ''),
+      annualRate:      rateEl.value,
+      termMonths
+    });
+
+    if (!val.isValid) {
+      if (val.errors.propertyPrice)   setFieldError(propEl, errPr, val.errors.propertyPrice);
+      if (val.errors.financingAmount) setFieldError(finEl, errFi, val.errors.financingAmount);
+      if (val.errors.annualRate)      setFieldError(rateEl, errR, val.errors.annualRate);
+      if (val.errors.termYears || val.errors.termMonths) {
+        setFieldError(prefix === 'A' ? aTermInput : bTermInput, errT, val.errors.termYears || val.errors.termMonths);
+      }
+      return null;
+    }
+    return { principal: val.values.financingAmount, annualRate: val.values.annualRate, termMonths: val.values.termMonths, financedAmount: null };
+  }
 }
 
 function handleCompare() {
-  clearAllOfferErrors();
+  clearAllCompareErrors();
 
-  // Validate Offer A
-  const valA = validateLoanInputs({
-    principal:  aPrincipalInput.value.replace(/,/g, ''),
-    annualRate: aRateInput.value,
-    termMonths: aTermInput.value
-  });
+  const offerA = validateOffer('A');
+  const offerB = validateOffer('B');
 
-  if (!valA.isValid) {
-    if (valA.errors.principal)  setOfferError(aPrincipalInput, aPrincipalError, valA.errors.principal);
-    if (valA.errors.annualRate) setOfferError(aRateInput, aRateError, valA.errors.annualRate);
-    if (valA.errors.termMonths) setOfferError(aTermInput, aTermError, valA.errors.termMonths);
-  }
+  // S-4 AC 4.2: Error isolation -- evaluate each valid offer independently
+  const { resultA, resultB, delta } = compareLoans(offerA, offerB);
 
-  // Validate Offer B (independently -- AC 4.2)
-  const valB = validateLoanInputs({
-    principal:  bPrincipalInput.value.replace(/,/g, ''),
-    annualRate: bRateInput.value,
-    termMonths: bTermInput.value
-  });
-
-  if (!valB.isValid) {
-    if (valB.errors.principal)  setOfferError(bPrincipalInput, bPrincipalError, valB.errors.principal);
-    if (valB.errors.annualRate) setOfferError(bRateInput, bRateError, valB.errors.annualRate);
-    if (valB.errors.termMonths) setOfferError(bTermInput, bTermError, valB.errors.termMonths);
-  }
-
-  // Compute whichever offers are valid (AC 4.2: error isolation)
-  const offerA = valA.isValid ? valA.values : null;
-  const offerB = valB.isValid ? valB.values : null;
-
-  const { resultA, resultB, delta } = compareLoans(
-    offerA ? { principal: offerA.principal, annualRate: offerA.annualRate, termMonths: offerA.termMonths } : null,
-    offerB ? { principal: offerB.principal, annualRate: offerB.annualRate, termMonths: offerB.termMonths } : null
-  );
-
-  if (resultA) {
-    showOfferResults(resultA.monthlyPayment, resultA.totalInterest, resultA.totalCost,
-      aMonthly, aInterest, aCost);
-  } else {
-    clearOfferResults(aMonthly, aInterest, aCost);
-  }
-
-  if (resultB) {
-    showOfferResults(resultB.monthlyPayment, resultB.totalInterest, resultB.totalCost,
-      bMonthly, bInterest, bCost);
-  } else {
-    clearOfferResults(bMonthly, bInterest, bCost);
-  }
-
+  showOfferResult('A', resultA, offerA ? offerA.financedAmount : null);
+  showOfferResult('B', resultB, offerB ? offerB.financedAmount : null);
   showComparisonSummary(delta);
 }
 
-// Reset comparison (AC 5.2)
 function handleCompareReset() {
   document.getElementById('offer-a-form').reset();
   document.getElementById('offer-b-form').reset();
-  clearAllOfferErrors();
-  clearOfferResults(aMonthly, aInterest, aCost);
-  clearOfferResults(bMonthly, bInterest, bCost);
-  clearComparisonSummary();
+  clearAllCompareErrors();
+  showOfferResult('A', null);
+  showOfferResult('B', null);
+  showComparisonSummary(null);
+
+  const defaultUnit = compareCurrentType === 'home' ? 'years' : 'months';
+  applyOfferTermUnit('A', defaultUnit);
+  applyOfferTermUnit('B', defaultUnit);
 }
 
 compareBtn.addEventListener('click', handleCompare);

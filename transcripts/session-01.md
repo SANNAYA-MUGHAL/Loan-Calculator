@@ -1409,3 +1409,78 @@ The current local time is: 2026-10-28T20:38:30+05:00.
 The user changed setting `Model Selection` from Claude Sonnet 4.6 (Thinking) to Gemini 3.8 Flash (High). No need to comment on this change if the user doesn't ask about it. If reporting what model you are, please use a human readable name instead of the exact string.
 </USER_SETTINGS_CHANGE>
 
+### Assistant
+
+All requested actions have been executed, verified, and pushed to your GitHub repository:
+
+**GitHub Repository:** [https://github.com/SANNAYA-MUGHAL/Loan-Calculator](https://github.com/SANNAYA-MUGHAL/Loan-Calculator)
+
+---
+
+### Summary of Completed Actions
+
+1. **S-3 (Years / Months Term Toggle):**
+   - Implemented unit toggle button on Personal and Car loan categories (`#toggle-months`, `#toggle-years`).
+   - Automatically converts display values when toggled (e.g., 3 years $\to$ 36 months, 48 months $\to$ 4 years, 37 months $\to$ 3.0833333333 years and back to 37).
+   - Validates fractional terms and rounds to the nearest whole month (e.g., 2.5 years $\to$ 30 months; 2.55 years $\to$ 31 months).
+   - 7 automated unit tests in [`test/s3-s4.test.js`](file:///Users/sannayamughal/Projects/Loan%20Calculator/test/s3-s4.test.js) asserting AC 3.1 through AC 3.6.
+
+2. **S-4 (Side-by-Side Loan Offer Comparison):**
+   - Implemented standalone comparison section for Offer A and Offer B with independent inputs and results.
+   - Computes automatic delta calculations:
+     - Clear trade-offs (AC 4.1): Offer A ($20k, 7%, 36mo) vs Offer B ($20k, 5.5%, 48mo) correctly highlights that Offer B saves $152.41/month, while Offer A saves $94.80 in total interest.
+     - Error isolation (AC 4.2): Invalid Offer B shows its error without breaking Offer A's calculation.
+     - Identical offers (AC 4.3): Displays `$0.00 difference` for both monthly payment and total interest.
+   - 4 automated unit tests in [`test/s3-s4.test.js`](file:///Users/sannayamughal/Projects/Loan%20Calculator/test/s3-s4.test.js).
+
+3. **S-5 (Reset All Inputs & Comparison):**
+   - Single loan Reset button clears all inputs, error states, and results, resetting unit toggle back to months (AC 5.1).
+   - Comparison Reset button (`#compare-reset-btn`) clears both Offer A and Offer B inputs, offer results, active errors, and the comparison summary (AC 5.2).
+
+4. **Product Documentation & Traceability:**
+   - [`docs/app-roles.md`](file:///Users/sannayamughal/Projects/Loan%20Calculator/docs/app-roles.md): Primary Borrower & Loan Comparer roles.
+   - [`docs/jobs-to-be-done.md`](file:///Users/sannayamughal/Projects/Loan%20Calculator/docs/jobs-to-be-done.md): Jobs J-1, J-2, J-3.
+   - [`docs/user-stories.md`](file:///Users/sannayamughal/Projects/Loan%20Calculator/docs/user-stories.md): All stories S-1 through S-9 with Given/When/Then acceptance criteria.
+   - [`docs/decision-log.md`](file:///Users/sannayamughal/Projects/Loan%20Calculator/docs/decision-log.md): Architecture Decisions 001, 002, and 003.
+   - [`docs/traceability.md`](file:///Users/sannayamughal/Projects/Loan%20Calculator/docs/traceability.md): Full Requirements Traceability Matrix linking roles, jobs, stories, ACs, automated tests, and implementation statuses.
+   - Verified that no em dashes or en dashes exist anywhere across the documentation.
+
+5. **Conversation Export:**
+   - [`transcripts/session-01.md`](file:///Users/sannayamughal/Projects/Loan%20Calculator/transcripts/session-01.md): Exported full 15-turn conversation transcript detailing the pair programming session.
+
+6. **README.md:**
+   - [`README.md`](file:///Users/sannayamughal/Projects/Loan%20Calculator/README.md): Documented project overview, prerequisites, install/dev/test/build instructions, architectural decisions, financial formula & rounding rules, AI models used, and requirements traceability summary.
+
+7. **Git & GitHub:**
+   - Initialized git repository with `.gitignore` (ignoring `node_modules/` and `dist/`).
+   - Committed clean codebase and pushed branch `main` to `https://github.com/SANNAYA-MUGHAL/Loan-Calculator`.
+
+---
+
+### Automated Test Suite Status
+
+```bash
+Test Files  2 passed (2)
+     Tests  42 passed (42)
+  Duration  289ms
+```
+
+---
+
+## Turn 16: User
+
+<USER_REQUEST>
+Compare offers should be for each loan either its car or personal or home 
+every loan has different criteria and details 
+also the moth and years option for repayment should be there for each calculator 
+compare options section doenst look good on last of the page it should be highlighted abive like a menu ti select or something else 
+</USER_REQUEST>
+<ADDITIONAL_METADATA>
+The current local time is: 2026-10-28T23:39:51+05:00.
+
+The user has uploaded 2 image(s):
+- /Users/sannayamughal/.gemini/antigravity/brain/7cfe4a41-0202-4521-aa44-de9d8692f3d0/.user_uploaded/media_1793212729210_1555a879.png
+- /Users/sannayamughal/.gemini/antigravity/brain/7cfe4a41-0202-4521-aa44-de9d8692f3d0/.user_uploaded/media_1793212753221_7a4479a4.png
+You can embed these images in an artifact if you need the USER to review them.
+</ADDITIONAL_METADATA>
+
