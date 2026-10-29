@@ -41,6 +41,8 @@ describe('Story S-1: Calculate my monthly payment (serves J-1)', () => {
       validation.values.termMonths
     );
     expect(result.monthlyPayment).toBe(500.00);
+    expect(result.totalInterest).toBe(0.00);
+    expect(result.totalCost).toBe(12000.00);
     expect(formatCurrency(result.monthlyPayment)).toBe('$500.00');
     expect(Number.isFinite(result.monthlyPayment)).toBe(true);
     expect(isNaN(result.monthlyPayment)).toBe(false);
@@ -66,6 +68,8 @@ describe('Story S-1: Calculate my monthly payment (serves J-1)', () => {
       validationSmall.values.termMonths
     );
     expect(result.monthlyPayment).toBe(1212.00);
+    expect(result.totalInterest).toBe(12.00);
+    expect(result.totalCost).toBe(1212.00);
     expect(formatCurrency(result.monthlyPayment)).toBe('$1,212.00');
   });
 
@@ -83,6 +87,8 @@ describe('Story S-1: Calculate my monthly payment (serves J-1)', () => {
       validation.values.termMonths
     );
     expect(result.monthlyPayment).toBe(482196.60);
+    expect(result.totalInterest).toBe(131454368.00);
+    expect(result.totalCost).toBe(231454368.00);
     expect(formatCurrency(result.monthlyPayment)).toBe('$482,196.60');
     expect(formatCurrency(result.monthlyPayment)).not.toContain('e');
   });
@@ -196,6 +202,14 @@ describe('Story S-1: Calculate my monthly payment (serves J-1)', () => {
     expect(valOverMax.isValid).toBe(false);
     expect(valOverMax.errors.annualRate).toBe('Interest rate must not exceed 100%');
 
+    const val150 = validateLoanInputs({
+      principal: '10000',
+      annualRate: '150',
+      termMonths: '36'
+    });
+    expect(val150.isValid).toBe(false);
+    expect(val150.errors.annualRate).toBe('Interest rate must not exceed 100%');
+
     // Exactly 100% is valid
     const valAtMax = validateLoanInputs({
       principal: '10000',
@@ -303,6 +317,16 @@ describe('Story S-2: See total interest and total cost (serves J-2)', () => {
     expect(valOverMax.isValid).toBe(false);
     expect(valOverMax.errors.termMonths).toBe('Term must not exceed 480 months (40 years)');
 
+    // 41 years in Home loan exceeds 480 months cap (41 x 12 = 492)
+    const val41Years = validateHomeLoanInputs({
+      propertyPrice: '300000',
+      financingAmount: '240000',
+      annualRate: '5.0',
+      termYears: '41'
+    });
+    expect(val41Years.isValid).toBe(false);
+    expect(val41Years.errors.termYears).toBe('Term must not exceed 480 months (40 years)');
+
     // 480 is valid
     const valAtMax = validateLoanInputs({
       principal: '10000',
@@ -370,6 +394,15 @@ describe('Story S-9: Car Loan (serves J-1)', () => {
     });
     expect(v.isValid).toBe(false);
     expect(v.errors.downPaymentPct).toBe('Down payment percentage must be less than 100%');
+
+    const v120 = validateCarLoanInputs({
+      vehiclePrice: '20000',
+      downPaymentPct: '120',
+      annualRate: '5',
+      termMonths: '36'
+    });
+    expect(v120.isValid).toBe(false);
+    expect(v120.errors.downPaymentPct).toBe('Down payment percentage must be less than 100%');
   });
 
   it('AC 9.4c: Car negative down payment is rejected', () => {

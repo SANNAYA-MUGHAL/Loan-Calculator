@@ -74,6 +74,11 @@ describe('Story S-3: Toggle term between years and months (serves J-1)', () => {
     const v = validateLoanInputs({ principal: '10000', annualRate: '6.0', termMonths: String(months) });
     expect(v.isValid).toBe(true);
     expect(v.values.termMonths).toBe(31);
+
+    const r = calculateLoan(v.values.principal, v.values.annualRate, v.values.termMonths);
+    expect(r.monthlyPayment).toBe(349.03);
+    expect(r.totalInterest).toBe(819.93);
+    expect(r.totalCost).toBe(10819.93);
   });
 
   it('AC 3.6: Non-whole months to years -- 37 months displayed as decimal, switch back returns 37', () => {
@@ -171,8 +176,10 @@ describe('Story S-4: Compare two loan offers (serves J-3)', () => {
 
     const { resultA, resultB, delta } = compareLoans(offerA, offerB);
 
-    expect(resultA.monthlyPayment).toBe(resultB.monthlyPayment);
-    expect(resultA.totalInterest).toBe(resultB.totalInterest);
+    expect(resultA.monthlyPayment).toBe(449.56);
+    expect(resultA.totalInterest).toBe(1184.16);
+    expect(resultB.monthlyPayment).toBe(449.56);
+    expect(resultB.totalInterest).toBe(1184.16);
     expect(delta.monthlyPaymentDiff).toBe(0.00);
     expect(delta.totalInterestDiff).toBe(0.00);
     expect(delta.lowerMonthlyOffer).toBe('equal');
