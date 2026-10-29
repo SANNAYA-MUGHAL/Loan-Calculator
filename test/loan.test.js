@@ -342,7 +342,7 @@ describe('Story S-2: See total interest and total cost (serves J-2)', () => {
 // ---------------------------------------------------------------------------
 
 describe('Story S-9: Car Loan (serves J-1)', () => {
-  it('AC 9.2: Car standard case — $30,000, 20% down, 6%, 60 months', () => {
+  it('AC 9.2: Car standard case -- $30,000, 20% down, 6%, 60 months', () => {
     const v = validateCarLoanInputs({
       vehiclePrice: '30000',
       downPaymentPct: '20',
@@ -358,7 +358,7 @@ describe('Story S-9: Car Loan (serves J-1)', () => {
     expect(r.totalInterest).toBe(3839.40);
   });
 
-  it('AC 9.3: Car zero interest — $24,000 financed, 0%, 60 months', () => {
+  it('AC 9.3: Car zero interest -- $24,000 financed, 0%, 60 months', () => {
     const v = validateCarLoanInputs({
       vehiclePrice: '30000',
       downPaymentPct: '20',
@@ -473,7 +473,7 @@ describe('Story S-9: Car Loan (serves J-1)', () => {
 });
 
 describe('Story S-9: Home Loan (serves J-1)', () => {
-  it('AC 9.5: Home standard case — $240,000 financed, 5%, 30 years', () => {
+  it('AC 9.5: Home standard case -- $240,000 financed, 5%, 30 years', () => {
     const v = validateHomeLoanInputs({
       propertyPrice: '300000',
       financingAmount: '240000',

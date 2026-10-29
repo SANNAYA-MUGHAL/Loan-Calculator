@@ -1,0 +1,92 @@
+[
+  {
+    "test": "Default load state",
+    "expected": "Single Calculator active, Personal category active, principal input visible",
+    "actual": "Single: true, Personal: true, Visible: true",
+    "pass": true
+  },
+  {
+    "test": "Personal $10,000 at 6% for 36 months",
+    "expected": "Payment $304.22, Interest $951.92, Total $10,951.92",
+    "actual": "Payment $304.22, Interest $951.92, Total $10,951.92",
+    "pass": true
+  },
+  {
+    "test": "Car $30,000, 20% down, 6%, 60 months",
+    "expected": "Financed $24,000.00, Payment $463.99, Interest $3,839.40, Total $27,839.40",
+    "actual": "Financed $24,000.00, Payment $463.99, Interest $3,839.40, Total $27,839.40",
+    "pass": true
+  },
+  {
+    "test": "Car $24,000 financed at 0% for 60 months",
+    "expected": "Payment $400.00, Interest $0.00, Total $24,000.00",
+    "actual": "Payment $400.00, Interest $0.00, Total $24,000.00",
+    "pass": true
+  },
+  {
+    "test": "Home $300,000 property, $240,000 financing, 5%, 30 years",
+    "expected": "Payment $1,288.37, Interest $223,813.20, Total $463,813.20",
+    "actual": "Payment $1,288.37, Interest $223,813.20, Total $463,813.20",
+    "pass": true
+  },
+  {
+    "test": "Months and Years Toggle Conversions",
+    "expected": "3 yr -> 36 mo; 48 mo -> 4 yr; 37 mo -> 3.0833333333 -> 37",
+    "actual": "3yr: 36, 48mo: 4, 37mo: 3.0833333333 -> 37",
+    "pass": true
+  },
+  {
+    "test": "Validation: Empty fields",
+    "expected": "Loan amount is required, Interest rate quoted by your lender is required, Loan term is required",
+    "actual": "Loan amount is required | Interest rate quoted by your lender is required | Loan term is required",
+    "pass": true
+  },
+  {
+    "test": "Validation: Numeric & boundary error messages",
+    "expected": "Non-numeric msg, amount > 0, rate 0-100%, term 1-480, down < 100%, home fin <= prop",
+    "actual": "nonNum: Please enter a valid numeric value, negP: Loan amount must be greater than 0, rate150: Interest rate must not exceed 100%, term481: Term must not exceed 480 months (40 years), carDown120: Down payment percentage must be less than 100%, homeOver: Financing amount cannot exceed property price",
+    "pass": true
+  },
+  {
+    "test": "Category switching clears results and active errors",
+    "expected": "Inputs empty, payment \"--\", 0 active errors",
+    "actual": "Prop: \"\", Rate: \"\", Payment: \"--\", Errors: 0",
+    "pass": true
+  },
+  {
+    "test": "Reset button clears single calculator",
+    "expected": "Fields empty, payment \"--\", interest \"--\", 0 active errors",
+    "actual": "Fields: \"\", Payment: \"--\", Errors: 0",
+    "pass": true
+  },
+  {
+    "test": "Error recovery on valid input (5000 at 6% for 36mo)",
+    "expected": "Error cleared immediately, payment $152.11",
+    "actual": "Had error: true, Cleared: true, Payment: $152.11",
+    "pass": true
+  },
+  {
+    "test": "Compare Case 10: Offer A (20k, 7%, 36mo) vs Offer B (20k, 5.5%, 48mo)",
+    "expected": "A: $617.54/$2,231.44; B: $465.13/$2,326.24; B saves $152.41/mo, A saves $94.80 interest",
+    "actual": "A: $617.54/$2,231.44, B: $465.13/$2,326.24, Monthly: \"Offer B saves $152.41 per month.\", Interest: \"Offer A saves $94.80 in total interest.\"",
+    "pass": true
+  },
+  {
+    "test": "Compare Case 11: Identical offers (15k, 5%, 36mo)",
+    "expected": "Payment $449.56, Interest $1,184.16, $0.00 difference for monthly and interest",
+    "actual": "A: $449.56/$1,184.16, Summary: \"Both offers have the same monthly payment ($0.00 difference).\" & \"Both offers cost the same total interest ($0.00 difference).\"",
+    "pass": true
+  },
+  {
+    "test": "Compare: Error isolation (Valid Offer A, Invalid Offer B rate -2%)",
+    "expected": "Offer A shows $617.54, Offer B shows error, placeholder: \"Enter valid values for both offers to compare.\"",
+    "actual": "A: $617.54, B Err: \"Interest rate cannot be negative\", Placeholder: \"Enter valid values for both offers to compare.\"",
+    "pass": true
+  },
+  {
+    "test": "Reset Comparison button",
+    "expected": "All offer fields empty, results \"--\", 0 errors, summary placeholder visible",
+    "actual": "Fields: \"\", \"\", Results: \"--\", Errors: 0, Placeholder: true",
+    "pass": true
+  }
+]
