@@ -12,20 +12,7 @@
 <USER_REQUEST>
 Here’s a plan built around one idea: the documents come first, and they become the prompt you give the AI tool. That makes the work easy to explain later, because every decision traces back to a role, a job, and a story.
 
-Step 0: Do this today
-
-Reply to the HR contact confirming receipt and giving a submission date. The brief says this is part of the evaluation, so don’t skip it. Pick a date that leaves about a day of buffer.
-
-Step 1: Choose the calculator (30 minutes)
-
-Pick something where different people genuinely need different things, so your roles are real and not padded. Two good options:
-
-Loan repayment calculator. Roles: a Borrower who wants a monthly payment and total cost, and a Loan Comparer who weighs two offers side by side. It has natural edge cases (0% interest, very long terms, huge amounts) and fits your FinTech background, which gives you credibility when you explain it.
-Bill splitter with tip. Roles: a Diner splitting a shared bill and a Group Organizer handling uneven shares. Simpler to build, with fewer financial-accuracy risks.
-
-My recommendation is the loan calculator, scoped small: payment, total interest, total cost, and an optional comparison view. Avoid a scientific calculator, since operator precedence and display bugs eat time without showing product thinking.
-
-Step 2: Write the three documents first (60 to 75 minutes)
+Step 1: Write the three documents first (60 to 75 minutes)
 
 Write them in the required order, by hand or with AI help, but know every line.
 
@@ -65,20 +52,8 @@ The user changed setting `Model Selection` from None to Gemini 3.8 Flash (High).
 <USER_REQUEST>
 Here’s a plan built around one idea: the documents come first, and they become the prompt you give the AI tool. That makes the work easy to explain later, because every decision traces back to a role, a job, and a story.
 
-Step 0: Do this today
 
-Reply to the HR contact confirming receipt and giving a submission date. The brief says this is part of the evaluation, so don’t skip it. Pick a date that leaves about a day of buffer.
-
-Step 1: Choose the calculator (30 minutes)
-
-Pick something where different people genuinely need different things, so your roles are real and not padded. Two good options:
-
-Loan repayment calculator. Roles: a Borrower who wants a monthly payment and total cost, and a Loan Comparer who weighs two offers side by side. It has natural edge cases (0% interest, very long terms, huge amounts) and fits your FinTech background, which gives you credibility when you explain it.
-Bill splitter with tip. Roles: a Diner splitting a shared bill and a Group Organizer handling uneven shares. Simpler to build, with fewer financial-accuracy risks.
-
-My recommendation is the loan calculator, scoped small: payment, total interest, total cost, and an optional comparison view. Avoid a scientific calculator, since operator precedence and display bugs eat time without showing product thinking.
-
-Step 2: Write the three documents first (60 to 75 minutes)
+Step 1: Write the three documents first (60 to 75 minutes)
 
 Write them in the required order, by hand or with AI help, but know every line.
 
@@ -119,29 +94,6 @@ We are in the right workspace (`Loan Calculator`), and the **Loan Repayment & Co
 - **Two genuine personas** with contrasting mental models: a **Borrower** budgeting a single loan vs. a **Loan Comparer** evaluating trade-offs between two competing offers.
 - **Rich mathematical edge cases**: 0% interest rate (avoiding division-by-zero crashes), 1-month minimum terms, 40-year caps, and large principal amounts.
 - **Clear hand-verifiable verification**: standard amortization formula ($M = P \frac{r(1+r)^n}{(1+r)^n - 1}$), making acceptance criteria bulletproof.
-
----
-
-### Step 0: Reply to HR (Do This Today)
-
-Send this quick confirmation email to your HR contact:
-
-> **Subject:** Re: Take-Home Assignment: [Role Title] — Sana Liaqat  
-> **Body:**  
-> Hi [HR Contact Name],  
->  
-> Thank you for sending over the assignment details. I confirm receipt and look forward to completing it.  
->  
-> I plan to submit my completed package by **[Day of week, Date — e.g., Thursday, October 30th at 5:00 PM]**.  
->  
-> Best regards,  
-> Sana Liaqat  
-
----
-
-### Step 1 & 2: The Three Product Documents
-
-Here are the drafts for all three required documents, strictly formatted to KnowledgeCity’s review rubric.
 
 ---
 
